@@ -335,6 +335,17 @@ public class Converter implements Callable<Void> {
   )
   private volatile boolean reuseExistingResolutions = false;
 
+  @Option(
+    names = "--even",
+    description = "Export even indices"
+  )
+  private volatile boolean exportEven = false;
+  @Option(
+    names = "--uneven",
+    description = "Export uneven indices"
+  )
+  private volatile boolean exportUneven = false;
+
   /** Scaling implementation that will be used during downsampling. */
   private volatile IImageScaler scaler = new SimpleImageScaler();
 
@@ -518,8 +529,18 @@ public class Converter implements Callable<Void> {
           meta.setRoot(root);
         }
         else {
-          for (int i=0; i<meta.getImageCount(); i++) {
-            seriesList.add(i);
+          if (exportEven | exportUneven) {
+            int rem = exportEven ? 0 : 1;
+            for (int i=0; i<meta.getImageCount(); i++) {
+              if ((i % 2) == rem) {
+                seriesList.add(i);
+              }
+            }
+          }
+          else {
+            for (int i=0; i<meta.getImageCount(); i++) {
+              seriesList.add(i);
+            }
           }
         }
 
